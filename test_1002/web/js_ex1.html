@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <!-- css, js , 파일 분리해서 작업함. 
     지금은 학습 목적으로 테스트 하기위해서, 
@@ -12,7 +14,81 @@
     <script>
         // script 태그 안에서, 자바스크립트 문법 확인 해보기
         document.write("hello world")
-        //
     </script>
+
+    <h1>JavaScript</h1>
+    <script>
+        document.write(1 + 1);
+    </script>
+    <h1>html</h1>
+    1+1
+
+    <!-- onclick, 버튼을 클릭시, alert 메서드 기능이 동작함. -->
+    <div>
+        <input type="button" value="hi" onclick="alert('오늘 점심 뭐 먹죠?');">
+    </div>
+    <!-- onchange, 텍스트 문자열 입력공간에 무언가 변경이 발생할 때마다, alert 메서드 동작함 -->
+    <input type="text" onchange="alert('changed')">
+
+    <!-- mdn , keydown 관련 예시 문서 가져와서 사용해보기. -->
+    <!-- https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event -->
+
+    <!-- type="text" : 한 문장을 입력 받는 공간, 
+    placeholder : 해당 문자열에 힌트 제공, 
+    size : 문자열 길이를 40 정도로 제한,  
+    id : 해당 html 문서안에는 input 태그가 여러개 있고, 구분짓는 용도. 
+    -->
+
+    <input type="text" id="test1" placeholder="Click here, then press down a key." size="40" />
+
+    <!-- id="test1" 입력란에 입력 받은 문자열을 출력을 하는 공간.  -->
+    <p id="log"></p>
+    <script>
+        // 아이디 : test1 태그를 선택 
+        const input = document.querySelector("#test1");
+        // getElementById : 아이디가 log 라는 태그 요소를 선택
+        const log = document.getElementById("log");
+        // 액션이 동작 하게끔 수행하는 기능. 
+        // "keydown" : 예약어라고함, 키를 누르면, 2번째 매개변수, logKey 콜백 함수가 동작함. 
+        input.addEventListener("keydown", logKey);
+        // 메서드(=함수). 특정 기능, 
+        // e : event 의미하고, 
+        // e.code , 각 키의 코드값을 해당 문자열에 추가하기. 
+        function logKey(e) {
+            log.textContent += ` ${e.code}`;
+        }
+    </script>
+
+    <!-- 아이디, 패스워드 입력 창 2개, 입력 된 내용을 , 
+     alert 함수이용해서, 내용 출력 해보기.  -->
+
+     <input id="userId" type="text" placeholder="아이디를 입력해주세요.">
+     <input id="userPassword" type="text" placeholder="패스워드를 입력해주세요.">
+     <input type="button" value="로그인" onclick="showUser()">
+     <!-- 아이디와 문자열을 특정 태그에 출력하기.  -->
+     <p id="result"></p>
+     <script>
+        function showUser() {
+            const id = document.getElementById("userId").value;
+            const password = document.getElementById("userPassword").value;
+            alert("아이디: "+id + ", 패스워드: " + password)
+            document.getElementById("result").innerText = "아이디: "+id + ", 패스워드: " + password
+        }
+     </script>
+
+     <!-- 먹고 싶은 점심 메뉴 입력 받고, h1 태그에 문자열 출력 해보기.  -->
+     <input id="lunchMenu" type="text" placeholder="먹고싶은 점심메뉴 입력해주세요.">
+     <input type="button" value="메뉴 출력하기" onclick="showMenu()">
+     <!-- 아이디와 문자열을 특정 태그에 출력하기.  -->
+     <h1 id="resultMenu"></h1>
+     <script>
+        function showMenu() {
+            const menu = document.getElementById("lunchMenu").value;
+            document.getElementById("resultMenu").innerText = "내가 먹고 싶은 점심 메뉴: " + menu
+        }
+     </script>
+
+
 </body>
+
 </html>

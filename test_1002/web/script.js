@@ -69,3 +69,18 @@ function previewImage(event) {
         reader.readAsDataURL(file);  // 파일을 읽어서 URL로 변환
     }
 }
+
+const inputId = document.querySelector("#test1");
+const inputPw = document.querySelector("#password");
+const loginButton = document.getElementById("loginButton");
+
+// 로그인 버튼 클릭 이벤트 추가
+loginButton.addEventListener("click", showAlert);
+
+function showAlert() {
+    const id = inputId.value; // 입력된 아이디
+    const pw = inputPw.value; // 입력된 비밀번호
+
+    // alert로 아이디와 비밀번호 표시
+    alert(`아이디: ${id}\n비밀번호: ${pw}`);
+}

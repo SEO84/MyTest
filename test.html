@@ -1,11 +1,179 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+public class UserDTO {
+    private String name;
+    private String email;
+    private String password;
+
+    public UserDTO(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+}
+
+
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class UserDAO {
+    private Connection conn;
+
+    public UserDAO() {
+        try {
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 회원 추가
+    public boolean addUser(UserDTO user) {
+        String query = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, user.getName());
+            pstmt.setString(2, user.getEmail());
+            pstmt.setString(3, user.getPassword());
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 회원 조회
+    public List<UserDTO> getAllUsers() {
+        List<UserDTO> userList = new ArrayList<>();
+        String query = "SELECT * FROM users";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String password = rs.getString("password");
+                userList.add(new UserDTO(name, email, password));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userList;
+    }
+}
+
+
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+public class UserManager extends JFrame {
+    private JTextField nameField, emailField, passwordField;
+    private JTable userTable;
+    private UserDAO userDAO;
+
+    public UserManager() {
+        userDAO = new UserDAO();
+        setTitle("회원 관리 프로그램");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // 입력창 패널
+        JPanel inputPanel = new JPanel(new GridLayout(3, 2));
+        inputPanel.add(new JLabel("이름:"));
+        nameField = new JTextField(20);
+        inputPanel.add(nameField);
+
+        inputPanel.add(new JLabel("이메일:"));
+        emailField = new JTextField(20);
+        inputPanel.add(emailField);
+
+        inputPanel.add(new JLabel("패스워드:"));
+        passwordField = new JPasswordField(20);
+        inputPanel.add(passwordField);
+
+        // 버튼 패널
+        JPanel buttonPanel = new JPanel();
+        JButton addButton = new JButton("추가");
+        JButton viewButton = new JButton("조회");
+        buttonPanel.add(addButton);
+        buttonPanel.add(viewButton);
+
+        // 테이블 패널
+        userTable = new JTable(new DefaultTableModel(new Object[]{"이름", "이메일", "패스워드"}, 0));
+        JScrollPane tablePane = new JScrollPane(userTable);
+
+        // 레이아웃 구성
+        setLayout(new BorderLayout());
+        add(inputPanel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.CENTER);
+        add(tablePane, BorderLayout.SOUTH);
+
+        // 이벤트 리스너 설정
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nameField.getText();
+                String email = emailField.getText();
+                String password = passwordField.getText();
+                UserDTO user = new UserDTO(name, email, password);
+
+                if (userDAO.addUser(user)) {
+                    JOptionPane.showMessageDialog(null, "회원이 추가되었습니다.");
+                    clearFields();
+                    displayUsers();
+                } else {
+                    JOptionPane.showMessageDialog(null, "회원 추가 실패.");
+                }
+            }
+        });
+
+        viewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                displayUsers();
+            }
+        });
+
+        setVisible(true);
+    }
+
+    private void displayUsers() {
+        List<UserDTO> users = userDAO.getAllUsers();
+        DefaultTableModel model = (DefaultTableModel) userTable.getModel();
+        model.setRowCount(0);  // 기존 데이터 지우기
+
+        for (UserDTO user : users) {
+            model.addRow(new Object[]{user.getName(), user.getEmail(), user.getPassword()});
+        }
+    }
+
+    private void clearFields() {
+        nameField.setText("");
+        emailField.setText("");
+        passwordField.setText("");
+    }
+
+    public static void main(String[] args) {
+        new UserManager();
+    }
+}
+
+
+CREATE TABLE users (
+    name VARCHAR2(100),
+    email VARCHAR2(100) PRIMARY KEY,
+    password VARCHAR2(100)
+);

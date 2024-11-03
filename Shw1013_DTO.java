@@ -1,27 +1,37 @@
-package ex_241023_cha15.homework;
+package Shw1013_MBTI;
 
-public class Shw1013_DTO {
+public class MBTITestDTO {
+    private int id;
     private String name;
-    private String email;
-    private String password;
+    private String phone;
+    private String mbti;
 
-    // Constructor
-    public Shw1013_DTO(String name, String email, String password) {
+    public MBTITestDTO(String name, String phone, String mbti) {
         this.name = name;
-        this.email = email;
-        this.password = password;
+        this.phone = phone;
+        this.mbti = mbti;
     }
 
-    // Getters
+    public MBTITestDTO(int id, String name, String phone, String mbti) {
+        this.id = id;
+        this.name = name;
+        this.phone = phone;
+        this.mbti = mbti;
+    }
+
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getPhone() {
+        return phone;
     }
 
-    public String getPassword() {
-        return password;
+    public String getMbti() {
+        return mbti;
     }
 }

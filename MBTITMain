@@ -1,0 +1,11 @@
+package Shw1013_MBTI;
+
+import javax.swing.SwingUtilities;
+
+public class MBTITMain {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            MBTITestGUI.showSplashScreen();
+        });
+    }
+}

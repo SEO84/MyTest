@@ -1,0 +1,16 @@
+package Shw1013_MBTI;
+
+public class DBConfig {
+    // Oracle JDBC 드라이버 클래스 이름
+    public static final String DRIVER = "oracle.jdbc.driver.OracleDriver";
+    
+    // Oracle 데이터베이스 연결 URL
+    // "localhost"는 데이터베이스 서버의 호스트 이름이며, "1521"은 포트 번호, "xe"는 서비스 이름입니다.
+    public static final String URL = "jdbc:oracle:thin:@localhost:1521:xe";
+    
+    // 데이터베이스 사용자 ID
+    public static final String USERID = "scott";
+    
+    // 데이터베이스 사용자 비밀번호
+    public static final String PASSWORD = "tiger";
+}

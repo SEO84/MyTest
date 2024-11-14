@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.DefaultCellEditor;
@@ -20,33 +21,37 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dao.CartDAOShw1013;
+import dto.CartDTOShw1013;
+
 public class CartUI extends JFrame {
+
+    private CartDAOShw1013 cartDAOShw1013;
+    private List<CartDTOShw1013> products;
 
     public CartUI() {
         setTitle("장바구니");
         setSize(600, 600);
         setLocationRelativeTo(null);
 
-        String[] columnNames = {"상품명", "가격", "개수", "재고", "삭제", "수량 수정"};
-        Object[][] data = {
-            {"무선 마우스", 25900, 1, 10, "삭제", "수량 수정"},
-            {"블루투스 헤드폰", 89900, 1, 5, "삭제", "수량 수정"},
-            {"스마트폰 충전기", 15900, 1, 8, "삭제", "수량 수정"},
-            {"4K 모니터", 299900, 1, 3, "삭제", "수량 수정"},
-            {"게이밍 키보드", 59900, 1, 7, "삭제", "수량 수정"},
-            {"남성용 티셔츠", 12900, 1, 15, "삭제", "수량 수정"},
-            {"여성용 청바지", 49900, 1, 10, "삭제", "수량 수정"},
-            {"가죽 재킷", 119900, 1, 4, "삭제", "수량 수정"},
-            {"스니커즈", 69900, 1, 12, "삭제", "수량 수정"},
-            {"손목시계", 99900, 1, 6, "삭제", "수량 수정"},
-            {"진공청소기", 129900, 1, 5, "삭제", "수량 수정"},
-            {"전자레인지", 89900, 1, 8, "삭제", "수량 수정"},
-            {"공기청정기", 199900, 1, 3, "삭제", "수량 수정"},
-            {"커피 메이커", 49900, 1, 9, "삭제", "수량 수정"},
-            {"냉장고", 599900, 1, 2, "삭제", "수량 수정"}
-        };
+        cartDAOShw1013 = new CartDAOShw1013();
+        products = cartDAOShw1013.getAllCartItems();
 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
+        String[] columnNames = {"상품명", "가격", "개수", "재고", "삭제", "수량 수정"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+
+        // DB에서 가져온 데이터로 테이블 모델 채우기
+        for (CartDTOShw1013 product : products) {
+            model.addRow(new Object[]{
+                product.getProductName(),  // 상품명
+                product.getPrice(),        // 가격
+                product.getQuantity(),     // 개수
+                product.getStock(),        // 재고
+                "삭제",                     // 삭제 버튼
+                "수량 수정"                 // 수량 수정 버튼
+            });
+        }
+
         JTable table = new JTable(model);
 
         // Set custom renderers for alignment
@@ -76,7 +81,7 @@ public class CartUI extends JFrame {
         // 버튼 렌더러 및 에디터 추가
         table.getColumn("삭제").setCellRenderer(new ButtonRenderer());
         table.getColumn("삭제").setCellEditor(new ButtonEditor(new JCheckBox(), model, "삭제"));
-        
+
         table.getColumn("수량 수정").setCellRenderer(new ButtonRenderer());
         table.getColumn("수량 수정").setCellEditor(new ButtonEditor(new JCheckBox(), model, "수량 수정"));
 
@@ -106,7 +111,7 @@ public class CartUI extends JFrame {
     private void updateTotalPrice(DefaultTableModel model, JLabel totalLabel) {
         int total = 0;
         for (int i = 0; i < model.getRowCount(); i++) {
-            int price = (int) model.getValueAt(i, 1);
+            double price = (double) model.getValueAt(i, 1);
             int quantity = (int) model.getValueAt(i, 2);
             total += price * quantity;
         }
@@ -147,14 +152,21 @@ public class CartUI extends JFrame {
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    CartDTOShw1013 product = products.get(row);
+
                     if ("삭제".equals(actionType)) {
+                        cartDAOShw1013.deleteCartItem(product.getCartId());
                         model.removeRow(ButtonEditor.this.row);
+                        products.remove(row);
                     } else if ("수량 수정".equals(actionType)) {
-                        String newQuantityStr = JOptionPane.showInputDialog(CartUI.this, "새로운 수량을 입력하세요:", model.getValueAt(row, 2));
+                        String newQuantityStr = JOptionPane.showInputDialog(CartUI.this,
+                            "새로운 수량을 입력하세요:", product.getQuantity());
                         try {
                             int newQuantity = Integer.parseInt(newQuantityStr);
-                            if (newQuantity > 0 && newQuantity <= (int) model.getValueAt(row, 3)) {
+                            if (newQuantity > 0 && newQuantity <= product.getStock()) {
+                                cartDAOShw1013.updateCartItem(product.getCartId(), newQuantity);
                                 model.setValueAt(newQuantity, row, 2);
+                                product.setQuantity(newQuantity);
                             } else {
                                 JOptionPane.showMessageDialog(CartUI.this, "유효한 수량을 입력하세요.");
                             }
@@ -172,4 +184,4 @@ public class CartUI extends JFrame {
             return label;
         }
     }
-} 
+}

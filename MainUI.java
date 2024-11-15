@@ -1,86 +1,154 @@
 package ui;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.util.List;
+import javax.swing.*;
 
-public class MainUI extends JFrame {
+import dao.DAOKjh_0313;
+import dto.ProductDTOKjh_0313;
+import dto.UserDTO;
 
-    private JPanel centerPanel;
-    private String[][] products = {
-        {"무선 마우스", "블루투스 헤드폰", "스마트폰 충전기", "4K 모니터", "게이밍 키보드"},
-        {"남성용 티셔츠", "여성용 청바지", "가죽 재킷", "스니커즈", "손목시계"},
-        {"진공청소기", "전자레인지", "공기청정기", "커피 메이커", "냉장고"}
-    };
+public class UiKjh_0313 extends JFrame {
+	private DAOKjh_0313 dao;
+	private JPanel topPanel, listPanel, infoPanel;
+	private JLabel productNameLabel, productPriceLabel, productDescriptionLabel;
+	private UserDTO loggedInUser;
 
-    public MainUI() {
-        setTitle("메인 화면");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+	public UiKjh_0313(UserDTO user) {
+		this.loggedInUser = user; // 로그인된 사용자 정보 저장
+		dao = new DAOKjh_0313();
 
-        // 메인 패널
-        JPanel mainPanel = new JPanel(new BorderLayout());
+		setTitle("상품 목록");
+		setSize(800, 600);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // 상단 패널: 카테고리 선택
-        JPanel topPanel = new JPanel();
-        JComboBox<String> categoryComboBox = new JComboBox<>(new String[]{"전자기기", "패션", "가전제품"});
-        categoryComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedIndex = categoryComboBox.getSelectedIndex();
-                updateProductList(selectedIndex);
-            }
-        });
-        topPanel.add(categoryComboBox);
+		createTopPanel();
+		createListPanel();
+		createInfoPanel();
 
-        // 중앙 패널: 카테고리별 상품 목록
-        centerPanel = new JPanel();
-        centerPanel.setLayout(new GridLayout(0, 3)); // 3열로 구성
-        updateProductList(0); // 디폴트로 전자기기 카테고리
+		setLayout(new BorderLayout());
+		add(topPanel, BorderLayout.NORTH);
+		add(listPanel, BorderLayout.WEST);
+		add(infoPanel, BorderLayout.CENTER);
 
-        // 하단 패널: 장바구니 버튼만 남김
-        JPanel bottomPanel = new JPanel();
-        JButton cartButton = new JButton("장바구니");
-        cartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new CartUI().setVisible(true);
-            }
-        });
-        bottomPanel.add(cartButton);
+		setVisible(true);
+	}
 
-        // 패널 추가
-        mainPanel.add(topPanel, BorderLayout.NORTH);
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+	private void createTopPanel() {
+		topPanel = new JPanel(new FlowLayout());
+		JLabel titleLabel = new JLabel("상품 목록");
+		topPanel.add(titleLabel);
 
-        add(mainPanel);
-    }
+		// 버튼 생성 및 이벤트 연결
+		topPanel.add(createTopPanelButton("장바구니", e -> new CartUIShw1013(getUserId()).setVisible(true)));
+		topPanel.add(createTopPanelButton("회원정보", e -> new MyProfileFrame(loggedInUser).setVisible(true)));
+		topPanel.add(createTopPanelButton("주문내역", e -> showOrderHistory()));
+	}
 
-    private void updateProductList(int categoryIndex) {
-        centerPanel.removeAll();
-        for (String product : products[categoryIndex]) {
-            JButton productButton = new JButton(product);
-            productButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    JOptionPane.showMessageDialog(null, product + " 상세 내용");
-                }
-            });
-            centerPanel.add(productButton);
-        }
-        centerPanel.revalidate();
-        centerPanel.repaint();
-    }
+	private JButton createTopPanelButton(String text, ActionListener actionListener) {
+		JButton button = new JButton(text);
+		button.addActionListener(actionListener);
+		return button;
+	}
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new MainUI().setVisible(true);
-            }
-        });
-    }
+	private void showOrderHistory() {
+		// 주문내역 표시 로직 추가
+		JOptionPane.showMessageDialog(this, "주문내역 기능은 아직 구현되지 않았습니다.");
+	}
+
+	private void createListPanel() {
+		listPanel = new JPanel();
+		listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+
+		JPanel searchPanel = new JPanel(new FlowLayout());
+		JTextField searchField = new JTextField(10);
+		JButton searchButton = new JButton("검색");
+		searchButton.addActionListener(e -> updateProductList(dao.searchProducts(searchField.getText())));
+
+		JButton viewAllButton = new JButton("모두 보기");
+		viewAllButton.addActionListener(e -> updateCategoryList());
+
+		searchPanel.add(searchField);
+		searchPanel.add(searchButton);
+		searchPanel.add(viewAllButton);
+
+		listPanel.add(searchPanel);
+
+		JPanel categoryPanel = new JPanel();
+		categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.Y_AXIS));
+		listPanel.add(categoryPanel);
+
+		updateCategoryList();
+	}
+
+	private void updateProductList(List<String> products) {
+		JPanel productPanel = new JPanel();
+		productPanel.setLayout(new BoxLayout(productPanel, BoxLayout.Y_AXIS));
+		listPanel.removeAll();
+
+		for (String product : products) {
+			JButton productButton = new JButton(product);
+			productButton.addActionListener(e -> showProductInfo(product));
+			productPanel.add(productButton);
+		}
+
+		listPanel.add(productPanel);
+		listPanel.revalidate();
+		listPanel.repaint();
+	}
+
+	private void updateCategoryList() {
+		JPanel categoryPanel = new JPanel();
+		categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.Y_AXIS));
+
+		List<String> categories = dao.getCategories();
+		for (String category : categories) {
+			JButton categoryButton = new JButton(category);
+			categoryButton.addActionListener(e -> updateProductList(dao.getProductsByCategory(category)));
+			categoryPanel.add(categoryButton);
+		}
+
+		listPanel.removeAll();
+		listPanel.add(categoryPanel);
+		listPanel.revalidate();
+		listPanel.repaint();
+	}
+
+	private void createInfoPanel() {
+		infoPanel = new JPanel(new GridLayout(4, 1));
+		productNameLabel = new JLabel();
+		productPriceLabel = new JLabel();
+		productDescriptionLabel = new JLabel();
+
+		JButton addToCartButton = new JButton("장바구니에 추가");
+		addToCartButton.addActionListener(e -> {
+			ProductDTOKjh_0313 product = dao.getProductInfo(productNameLabel.getText());
+			dao.addToCart(getUserId(), product.getProductId());
+			JOptionPane.showMessageDialog(this, "장바구니에 상품이 추가되었습니다.");
+		});
+
+		infoPanel.add(productNameLabel);
+		infoPanel.add(productPriceLabel);
+		infoPanel.add(productDescriptionLabel);
+		infoPanel.add(addToCartButton);
+	}
+
+	private void showProductInfo(String productName) {
+		ProductDTOKjh_0313 product = dao.getProductInfo(productName);
+		if (product != null) {
+			productNameLabel.setText("상품 이름: " + product.getName());
+			productPriceLabel.setText("가격: " + product.getPrice());
+			productDescriptionLabel.setText("설명: " + product.getDescription());
+		}
+	}
+
+	private int getUserId() {
+		return loggedInUser.getUserId();
+	}
+
+	public static void main(String[] args) {
+		UserDTO loggedInUser = new UserDTO(1, "홍길동", "hong@domain.com", "1234", null, false);
+		new UiKjh_0313(loggedInUser);
+	}
 }

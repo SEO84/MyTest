@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="info">
+    <Appenders>
+<!--        출력 대상 콘솔-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}-%msg%n"/>
+        </Console>
+        <!--        추가 부분-->
+<!--출력 대상 파일-->
+        <File name="FileAppender" fileName="logs/error.log">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}-%msg%n"/>
+        </File>
+        <!--        추가 부분-->
+
+    </Appenders>
+    <Loggers>
+<!--        추가 부분-->
+<!--        특정 패키지 명으로 설정가능. -->
+        <!--        추가 부분-->
+        <logger name="org.springframework" level="info" additivity="false">
+            <appender-ref ref = "Console"/>
+        </logger>
+
+        <logger name="com.busanit501" level="info" additivity="false">
+            <AppenderRef ref="FileAppender" level="error"/>
+            <AppenderRef ref="Console" level="info"/>
+        </logger>
+
+        <!--        추가 부분-->
+        <logger name="com.busanit501.springex.mapper" level="trace" additivity="false">
+            <appender-ref ref = "Console"/>
+        </logger>
+
+<!--        전체 설정 기본적으로 INFO 이상일 때 로그를 출력하게 설정-->
+        <Root level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

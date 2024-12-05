@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.busanit501.springex.mapper.TodoMapper">
+    <select id="getTime" resultType="string">
+        select now()
+    </select>
+
+<!--    #{title} -> TodoVO, getTitle 로 접근하는 것과 동일한 효과-->
+    <insert id="insert">
+        insert into tbl_todo (title, dueDate, writer)
+        values (#{title}, #{dueDate}, #{writer})
+    </insert>
+
+<!--    여러개 행 조회, 각행의 요소, TodoVO , -->
+    <select id="selectAll" resultType="com.busanit501.springex.domain.TodoVO">
+        select * from tbl_todo order by tno desc
+    </select>
+
+    <select id="selectOne" resultType="com.busanit501.springex.domain.TodoVO">
+        select * from tbl_todo where tno = #{tno}
+    </select>
+
+    <delete id="delete">
+        delete from tbl_todo where tno = #{tno}
+    </delete>
+
+    <update id="update">
+        update tbl_todo set title = #{title}, dueDate = #{dueDate}, finished = #{finished}
+        where tno = #{tno}
+    </update>
+
+<!--    페이징 처리해서, 전체 조회-->
+<!--    #{skip} -> 동작을 getSkip() -->
+    <select id="selectList" resultType="com.busanit501.springex.domain.TodoVO">
+        select * from tbl_todo order by tno desc limit #{skip}, #{size}
+    </select>
+
+    <select id="getCount" resultType="int">
+        select count(tno) from tbl_todo
+    </select>
+
+
+</mapper>
+
+
+
+
+
+
+
+

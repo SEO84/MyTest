@@ -1,0 +1,136 @@
+select now();
+drop table tbl_todo;
+create table tbl_todo (
+                          tno int auto_increment primary key,
+                          title varchar(100) not null,
+                          dueDate date not null,
+                          finished tinyint default 0
+);
+
+alter table tbl_todo add column writer varchar(30);
+select * from tbl_todo;
+
+insert into tbl_todo (title, dueDate, finished) values ('샘플1','2024-05-16',1);
+insert into tbl_todo (title, dueDate) values ('점심 뭐 먹지?국밥','2024-05-21');
+
+# 전체 보기
+select * from tbl_todo;
+# 하나의 글 보기, 상세보기
+select * from tbl_todo where tno = 2;
+select * from tbl_todo where tno < 10;
+
+update tbl_todo set finished = 0, title = '샘플1수정', dueDate = now() where tno = 4;
+
+delete from tbl_todo where tno > 5;
+delete from tbl_todo where tno = 11;
+
+# 더미 데이터 만들기.
+insert into tbl_todo (title, dueDate, writer)
+    (select title,dueDate,writer from tbl_todo);
+select count(tno) from tbl_todo;
+
+# 페이징 하기위한 마리아 디비에서 limit 기능 알아보기.
+# limit  (페이징 당 보여줄 갯수)
+# limit (스킵할 데이터 갯수), (페이징 당 보여줄 갯수)
+#예시) 1페이지 10개 출력, (start)1~ (end)10번까지 출력.
+select * from tbl_todo order by tno desc limit  10;
+
+#예시) 2페이지 10개 출력, (start)11~ (end)20번까지 출력.
+select * from tbl_todo order by tno desc limit  10, 10;
+
+#예시) 3페이지 10개 출력, (start)21~ (end)30번까지 출력.
+select * from tbl_todo order by tno desc limit  20, 10;
+
+# end 구하면, -9 하면, start 알수 있음.  
+
+#예시) n페이지 10개 출력, nx10 - 9 ~ nx10 번까지 출력.
+# 주의사항, (n-1) 식으로 표현이 안됨.
+# Mybatis , #{skip} -> getSkip 게터 이용해서, 값을 설정,
+
+# select * from tbl_todo order by tno desc limit (n-1)페이지, (페이지당 출력할 갯수);
+# select * from tbl_todo order by tno desc limit (n-1), 10;
+
+#페이징 할 때, 필요한 준비물 중에서, 전체갯수 필요함.
+페이징당 10개 출력 조건.
+예) 전체 갯수 total : 75개,
+페이지 표시 할 때, 1 ~  8페이지,
+
+# 페이징 계산
+화면에서, 보여줄 페이지 갯수 10개, 고정,
+
+전체 갯수 : 1900 개 가정,
+예시) 1,2,3,4,  ... 8,9,10
+현재 보고 있는 페이지 번호, 예시)페이지1, 의 범위 : 1~10 ,
+현재 보고 있는 페이지 번호, 예시)페이지2, 의 범위 : 1~10 ,
+:
+:
+현재 보고 있는 페이지 번호, 예시)페이지10, 의 범위 : 1~10 ,
+
+현재 보고 있는 페이지 번호, 예시)페이지11, 의 범위 : 11~20,
+현재 보고 있는 페이지 번호, 예시)페이지12, 의 범위 : 11~20,
+현재 보고 있는 페이지 번호, 예시)페이지13, 의 범위 : 11~20,
+현재 보고 있는 페이지 번호, 예시)페이지20, 의 범위 : 11~20,
+
+현재 보고 있는 페이지 번호, 예시)페이지21, 의 범위 : 21~30,
+
+수식으로
+보고 있는 페이지/ 보여질 페이지 갯수(10), -> 포함될 페이지 범위: end 페이지
+1 / 10 = 0.1 , 올림 -> 1, 곱하기 10 => 10
+2 / 10 = 0.2 , 올림 -> 1, 곱하기 10 => 10
+3 / 10 = 0.3 , 올림 -> 1, 곱하기 10 => 10
+:
+10 / 10 = 1.0 , 올림 -> 1, 곱하기 10 => 10
+11 / 10 = 1.1 , 올림 -> 2, 곱하기 10 => 20
+12 / 10 = 1.2 , 올림 -> 2, 곱하기 10 => 20
+
+end = ((int)Math.ceil(page/10.0) * 10)
+start = end - 9
+
+
+=============================================
+전체 갯수 : 85 개 가정,
+예시) 1,2,3,4,  ... 8,9
+
+전체 갯수 100개 미만인 경우에는, last 계산,
+123/10.0 -> 12.3 => 13
+100/10.0 -> 10 => 10
+75/10.0 -> 7.5 => 8
+85/10.0 -> 8.5 => 9
+
+last = (int)(Math.ceil(total/size(10.0)))
+
+예시1)
+      10 > 9
+end = end > last ? last : end
+
+예시2)
+      10 > 13
+end = end > last ? last : end
+
+-----------------------------------------
+이전 페이지 여부,
+현재 시작 페이지 1 보다 크면, 무조건 이전 페이지 있음.
+화면에 보여줄 페이지는 10개씩 보여주기 때문에,
+1,2,3,.. 10 : 이전 페이지 없음.
+2,3,4,...11 : 이전 페이지 존재 함.
+11,12,13,...20
+prev = start > 1
+
+다음 페이지 여부,
+전체 갯수가 중요함.
+total > end * size
+예시)123 > 10 * 10
+
+1,2,3,...,10: 다음 페이지 있음.
+예시)123 > 10 * 10
+2,3,4,...,11: 다음 페이지 있음.
+예시)123 > 11 * 10
+3,4,5,...,12: 다음 페이지 있음.
+예시)123 > 12 * 10
+4,5,6,...,13: 다음 페이지 없음.
+예시)123 > 13 * 10
+
+next = total > end * size
+
+
+

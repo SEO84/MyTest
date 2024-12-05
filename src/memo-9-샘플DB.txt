@@ -1,0 +1,25 @@
+select now();
+
+create table tbl_todo (
+                          tno int auto_increment primary key,
+                          title varchar(100) not null,
+                          dueDate date not null,
+                          finished tinyint default 0
+);
+
+alter table tbl_todo add column writer varchar(30);
+select * from tbl_todo;
+
+insert into tbl_todo (title, dueDate, finished) values ('샘플1','2024-05-16',1);
+insert into tbl_todo (title, dueDate) values ('점심 뭐 먹지?국밥','2024-05-21');
+
+# 전체 보기
+select * from tbl_todo;
+# 하나의 글 보기, 상세보기
+select * from tbl_todo where tno = 2;
+select * from tbl_todo where tno < 10;
+
+update tbl_todo set finished = 0, title = '샘플1수정', dueDate = now() where tno = 4;
+
+delete from tbl_todo where tno > 5;
+delete from tbl_todo where tno = 11;

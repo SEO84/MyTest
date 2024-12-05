@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+    <!--    여기에 설정하는 것은 , 시스템 전역에 설정을 하는 것이라서, -->
+    <!--    어느 파일에서든 호출 가능함.-->
+
+    <!--    낱개로 빈즈들을 등록 했다면-->
+
+    <!--    <bean class="com.busanit501.springex.SampleDAO"></bean>-->
+    <!--    <bean class="com.busanit501.springex.SampleService"></bean>-->
+
+    <!--    통으로 패키지 등록하기. -->
+    <context:component-scan base-package="com.busanit501.springex.sample"/>
+
+    <!--    핵심 역할을 하는 디비 연결 풀, 시스템에 인스턴스로 등록-->
+<!--    HikaryConfig hikariConfig = new hikariConfig();-->
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <!--        속성 옵션 설정해서, 작업.-->
+        <property name="driverClassName" value="org.mariadb.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mariadb://localhost:3306/webdb"></property>
+        <property name="username" value="webuser"></property>
+        <property name="password" value="webuser"></property>
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="cachePrepStmts">true</prop>
+                <prop key="prepStmtCacheSize">250</prop>
+                <prop key="prepStmtCacheSqlLimit">2048</prop>
+            </props>
+        </property>
+    </bean>
+
+<!--    위에서 설정한 hikariConfig 설정을 , dataSource 인스턴스에 포함하기.-->
+<!--&lt;!&ndash;    생성자 주입으로 포함하기&ndash;&gt;-->
+<!--    public class DataSource {-->
+<!--        private HikariConfig hikariConfig-->
+<!--    }-->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"
+          destroy-method="close">
+        <constructor-arg ref="hikariConfig"/>
+    </bean>
+
+<!--    Mybatis  기능을 , 전역 설정에 등록해서 이용할 준비. -->
+<!--    resource 폴더는 전체 설정 관련 접근을 위한 폴더이고, 접근시, classpath 접근 가능함,-->
+<!--    /mappers/** , **  의미, mappers 폴더 밑에 아무 폴더 추가해도 상관없음.-->
+<!--    *.xml , 모든 xml 파일을 다 가리킴-->
+<!--     WEB-INF 하위에서 resources ,  css,js,image 등, 웹브라우저에게 제공하는 목적으로 사용함.-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:/mappers/**/*.xml"></property>
+    </bean>
+
+<!--    모델 맵퍼 이용하는 첫번째 방법, 해당 메서드에 애너테이션 안에 sql 문장을 등록해서 이용. -->
+<!--    시스템에서, 해당 패키지의 애너테이션 존재 유무를 몰라요, -->
+<!--    그래서, 시스템에 등록해서 이용해야함. -->
+<!--    결론, 우리는 이방식으로 안하고, 파일 분리 형식으로 작업 할 예정. -->
+    <mybatis:scan base-package="com.busanit501.springex.mapper"></mybatis:scan>
+
+<!--    모델 맵퍼 설정 클래스 경로 추가 -> @Configuration 애너테이션이용 가능.-->
+    <context:component-scan base-package="com.busanit501.springex.config"/>
+    <context:component-scan base-package="com.busanit501.springex.service"/>
+
+
+</beans>

@@ -1,0 +1,46 @@
+서버 사이드에서의 검증 작업(유효성 체크)
+보통, 앞단의 자바스크립트에서 유효성 검사를 하고,
+추가로, 서버에서도 체크 가능.
+
+@Valid -> 검사를 할 목적
+, BindingResult(인스턴스) : 오류가 발생시 오류 내용을 담을 도구
+ 사용할 예정.
+
+도구를 사용할려면 , 라이브러리 설치, -> build.gradle
+
+implementation group: 'org.hibernate', name: 'hibernate-validator', version: '6.2.1.Final'
+
+유효성 검사를 하는 도구 종류.
+1) @NotNull : 널 불가.
+2) @Null : 널 가능.
+3) @NotEmpty : 공백 안됨.
+4) @NotBlank : 공백 안되고, 언더바(빈공란, 스페이스바 누르면)
+5) @Size(min=, max=) : 크기의 최소 최대
+6) @Patter(regex=) : regex 유효성 검사하는 언어 이용해서, 유효성 체크.
+7) @Max(num) : 최댓값 지정
+8) @Min(num) : 최솟값 지정.
+9) @Positive : 양수만
+10) @Negative : 음수만
+11) @PositiveOrZero : 양수 또는 0 가능.
+12) @NegativeOrZero : 음수 또는 0 가능.
+13) @Future : 미래 날짜만 가능.
+14) @Past : 과거 날짜만 가능.
+
+사용법,
+예시) DTO, 에서 해당 필드 위에
+@NotNull
+private Long tno
+
+서버의 post 메서드의 파라미터 안에 @Valid 달아서 표시하기.
+
+예시2)
+BindingResult
+컨트롤러에서, 검증 실패시, 자동으로 오류 관련 내용을 담아 준다.
+
+
+
+
+
+
+
+

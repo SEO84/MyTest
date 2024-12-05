@@ -1,0 +1,32 @@
+<context:component-scan>
+: 스프링 사용시, 클래스를 직접 이용해서, 객체를 생성하지 않음.
+이 역할, ApplicationContext 가, 대신함.
+생성된 객체를 관리하는 역할.
+
+서버프로그램 구현에서,
+web.xml -> 서블릿 설정 안하고, -> @WebServlet 대체.
+
+스프링도, 초반에는 , xml 설정 파일에 빈즈들을 설정해서, 사용했고,
+-> 애너테이션을 이용해서 의존성 주입을 하기 시작 했음.
+
+예시)
+변경 전
+root-context.xml
+1) 설정 파일에 등록 후,
+<bean class="com.busanit501.springex.SampleDAO"></bean>
+2) 단위테스트 파일에서,
+@Autowired 애너테이션 이용해서 사용했음.
+
+변경 후,
+1)
+-> <context:component-scan>, root-context.xml  파일에
+해당 패키지를 통으로 등록해서,
+2)
+@Autowired , 사용함.
+
+그래서, 자주 사용되는 애너테이션 들,
+@Controller  컨트롤러 역할 ,
+@Service 서비스 역할 ,
+@Repository DAO 역할,
+@Component 일반 객체 타입을 시스템 등록,
+

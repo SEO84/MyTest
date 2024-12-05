@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+    <!--    스프링 MVC 도구를 , build.gradle  추가후, 리스너를 시스템에 등록하는 과정-->
+    <!--    리스너, 프레임워크 하위 전체에서, 접근이 가능한 설정을 하는게, -> 공유자원.-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/root-context.xml</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <!--    스프링 MVC 도구를 , build.gradle  추가후, 리스너를 시스템에 등록하는 과정-->
+
+<!--    서블릿 설정 파일 위치를 등록. -->
+<!--    웹브라우저의 최상위 루트 경로 까지 추가 및 적용. -->
+    <!--  스프링 mvc 관련 설정을 등록하기, 서블릿 관련 설정-->
+<!--    웹브라우저에서 , 특정 경로 url 호출하면, 디스패처 서블릿 먼저 받아서, -->
+<!--    어느 컨트롤러 갈지 정해준다.-->
+
+    <servlet>
+        <servlet-name>appServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/servlet-context.xml</param-value>
+        </init-param>
+        <!--    404 not found 발생시, 전달할 페이지 위치 등록-->
+<!--        적용해야, 원래 페이지가 존재 하지 않을 때, 설정한 페이지로 확인 됨-->
+        <init-param>
+            <param-name>throwExceptionIfNoHandlerFound</param-name>
+            <param-value>true</param-value>
+        </init-param>
+
+        <!--    서블릿 파일 , 스프링 서버 시작시, 같이 로드 하겠다라는 의미-->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!--  위의 설정을 적용할 범위. 예) http://localhost:8080/ -> / -->
+    <servlet-mapping>
+        <servlet-name>appServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+<!--    웹브라우저로부터 들어온 데이터 인코딩 타입 UTF-8 설정.-->
+    <filter>
+        <filter-name>
+            encoding
+        </filter-name>
+        <filter-class>
+            org.springframework.web.filter.CharacterEncodingFilter
+        </filter-class>
+
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>encoding</filter-name>
+        <servlet-name>appServlet</servlet-name>
+    </filter-mapping>
+
+
+
+</web-app>

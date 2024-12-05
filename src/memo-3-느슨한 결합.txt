@@ -1,0 +1,63 @@
+느슨한 결합, 인터페이스를 이용, 다형성 이용.
+장점)
+1) 코드 유연성-> 유지보수가 좋다.
+2) 테스트 편의성,
+3) 낮은 결합도.
+
+예시) 
+자동차 클래스, 엔진 인터페이스 예)
+public interface Engine { void start(); }
+public class Engine { void start(); }
+
+public class GasolinCar implements Engine {
+    @Override
+    public void start() {
+     System.out.println("가솔린 엔진 자동차");
+    }
+}
+
+public class ElectricCar implements Engine {
+    @Override
+    public void start() {
+     System.out.println("전기 엔진 자동차");
+    }
+}
+
+public class Car {
+    private Engine engine;
+    
+    public Car(Engine engine) {
+        this.engine = engine
+    }
+    
+    public void drive() {
+        engin.start();
+    }
+}
+
+Main class, 
+main( String[] args ) {
+       //GasolinCar gCar = new GasolinCar();
+       Engine gCar = new GasolinCar();
+       Engine eCar = new ElectricCar();
+}
+
+수정할 때 생각해보기. ?
+-> 인터페이스가 아니라, 만약에, 클래스로 작업이 다 되어있으면,
+해당 Engine 상속받고 구현하는 클래스들은 , 의존하는 클래스의 영향을 받고,
+수정은 본인 클래스 같이 진행해야함,
+
+하지만, 인터페이스로 구현하면,
+자동차 클래스는 그대로 코드를 유지하고, 해당 인터페이스를 구현한 클래스
+교체 하는 식으로 사용가능.
+
+=====================================================
+
+인터페이스 타입으로,  선언하고, 구현하는 클래스가 2개이상인 경우,
+시스템은 2개 중에 선택 못해서,
+1)@Primary , 주 클래스만 이용하는 방법.
+2)@Qualifier, 이름 라벨 달아서, 선택,
+
+
+
+

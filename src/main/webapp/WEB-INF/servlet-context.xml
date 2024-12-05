@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+<!--    스프링 mvc 설정을 애너테이션 기반으로 처리합니다.-->
+    <mvc:annotation-driven></mvc:annotation-driven>
+
+<!--    webapp 아래의 resources , 해당 경로를 전체 설정에 등록하면, -->
+<!--    웹브라우저에서, 해당 정적 자원에 접근이 가능. -->
+<!--    http://localhost:8080/resources/test.html , 접근이 가능함. -->
+    <mvc:resources mapping="/resources/**" location="/resources/"/>
+<!--스프링 mvc에서 제공하는 뷰를 어떻게 처리해서 보여줄지 정하는 기능. -->
+<!--    뷰파일의 경로 예시: /WEB-INF/views/todo/list.jsp -->
+<!--    접두어: /WEB-INF/views/, -->
+<!--    접미어 : .jsp ,  -->
+<!--    반복.-->
+<!--    파일명, 또는 폴더에서 파일명 만 교체해서 사용할 예정.-->
+<!--    todo/list-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+<!--    자바의 애너테이션으로 @Controller 이용할려면, 등록된 파일의 위치 패키지를 시스템에게 알려줘야함. -->
+    <context:component-scan base-package="com.busanit501.springex.controller"/>
+
+<!--    LocalDate 타입, 문자열 타입으로 형변환 해주는 기능 , 시스템에 빈(객체)으로 등록-->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+<!--        여기 속성에 우리가 만든 클래스 경로를 지정하기-->
+        <property name="formatters">
+            <set>
+<!--                2024-12-04 , 문자열 타입으로 오면, -> LocalDate 타입으로 자동 형변환-->
+                <bean class="com.busanit501.springex.controller.formatter.LocalDateFormatter"></bean>
+<!--                finished 체크가 되었다면, 체크박스라서, 값은 on 문자열로 오고, 변환 boolean true 변환해주기-->
+                <bean class="com.busanit501.springex.controller.formatter.CheckboxFormatter"></bean>
+            </set>
+        </property>
+    </bean>
+
+<!--    위의 설정을 , 애너테이션에서 이용가능하게 적용하기.-->
+    <mvc:annotation-driven conversion-service="conversionService"/>
+
+</beans>
